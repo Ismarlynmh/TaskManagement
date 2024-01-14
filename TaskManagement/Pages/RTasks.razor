@@ -1,0 +1,132 @@
+﻿@page "/rtasks"
+@inject TasksBLL tasksBll
+@inject UserManager<IdentityUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+
+<EditForm Model="@task" OnValidSubmit="@AddTask">
+    <DataAnnotationsValidator />
+    <div class="card-header">
+        <h3>Agregar Tarea</h3>
+    </div>
+    <div class="input-group">
+        <div class="card-body">
+            <div class="container overflow-hidden">
+                <div class="row gy-6">
+                    <div class="form-group">
+                        <label for="Title">Título:</label>
+                        <InputText id="Title" @bind-Value="task.Title" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Description">Descripción:</label>
+                        <InputText id="Description" @bind-Value="task.Description" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="DueDate">Fecha de Vencimiento:</label>
+                        <InputDate id="DueDate" @bind-Value="task.DueDate" class="form-control" />
+                    </div>
+                    <div class="col-4">
+                        <div class="mb-3">
+                            <label for="Priority">Prioridad:</label>
+                            <InputSelect class="form-select" @bind-Value="task.Priority">
+                                <option value="">Seleccione una prioridad</option>
+                                <option value="Baja">Baja</option>
+                                <option value="Media">Media</option>
+                                <option value="Alta">Alta</option>
+                            </InputSelect>
+                            @if(mostrarMensaje)
+                            {
+                                <label style=" color:red;">Debe seleccionar una prioridad</label>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="mb-3 text-center" display: inline-block>
+                            <button type="submit" class="btn btn-primary">Agregar</button>
+                            <button type="button" class="btn btn-warning" @onclick="UpdateTask">Editar</button>
+                            <button type="button" class="btn btn-danger" @onclick="DeleteTask">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ValidationSummary />
+</EditForm>
+
+@code {
+    public string Filtro { get; set; } = "";
+
+    private Tasks task = new Tasks();
+
+    bool mostrarMensaje = false;
+    private void AddTask()
+    {
+        if(task.Priority == null )
+        {
+            mostrarMensaje = true;
+            return;
+        }
+        mostrarMensaje = false;
+
+        var user = AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User;
+        var userId = UserManager.GetUserId(user);
+
+        task.UserId = userId;
+
+        if (tasksBll.AddTask(task))
+        {
+            task = new Tasks();
+        }
+    }
+
+    private void SearchTask()
+    {
+        var resultTask = tasksBll.BuscarTask(task.Id);
+        if (resultTask != null)
+        {
+            task = resultTask;
+        }
+        else
+        {
+            // Handle when task is not found
+        }
+    }
+
+
+    private void UpdateTask()
+    {
+        var existingTask = tasksBll.BuscarTask(task.Id);
+        if (existingTask != null)
+        {
+            existingTask.Title = task.Title;
+            existingTask.Description = task.Description;
+            existingTask.DueDate = task.DueDate;
+            // existingTask.IsCompleted = taskmodel.IsCompleted;
+            // existingTask.Priority = taskmodel.Priority;
+            // existingTask.UserId = taskmodel.UserId;
+            tasksBll.ModificarTask(existingTask);
+        }
+
+        task = new();
+    }
+
+    // private void SearchTask()
+    // {
+    //     tasksService.BuscarTask(taskmodel.Id);
+    //     taskmodel = new TaskModel();
+    // }
+
+    private void DeleteTask()
+    {
+
+    }
+    
+    
+
+    
+
+}
