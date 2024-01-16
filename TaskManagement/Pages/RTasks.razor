@@ -10,12 +10,19 @@
     <DataAnnotationsValidator />
     <div class="card-header">
         <h3>Agregar Tarea</h3>
+        <h5>Para agregar una visualizar una nueva tarea debe de iniciar sesión</h5>
     </div>
     <a class="btn btn-primary" href="/tasklist">Ver</a>
     <div class="input-group">
         <div class="card-body">
             <div class="container overflow-hidden">
                 <div class="row gy-6">
+                    <div class="form-group">
+                        <InputNumber id="Id" @bind-Value="task.Id" class="form-control" />
+                        <button type="button" class="input-group-text btn btn-primary" @onclick="SearchTask">
+                            <i class="oi oi-magnifying-glass" />
+                        </button>
+                    </div>
                     <div class="form-group">
                         <label for="Title">Título:</label>
                         <InputText id="Title" @bind-Value="task.Title" class="form-control" />
@@ -65,8 +72,10 @@
     private Tasks task = new Tasks();
 
     bool mostrarMensaje = false;
+    bool UsuarioInvalido = false;
     private void AddTask()
     {
+        
         if(task.Priority == null )
         {
             mostrarMensaje = true;
@@ -83,6 +92,7 @@
         {
             task = new Tasks();
         }
+        
     }
 
     private void SearchTask()
@@ -118,13 +128,13 @@
 
     // private void SearchTask()
     // {
-    //     tasksService.BuscarTask(taskmodel.Id);
-    //     taskmodel = new TaskModel();
+    //     tasksBll.BuscarTask(task.Id);
     // }
 
     private void DeleteTask()
     {
         tasksBll.Eliminar(task.Id);
+        task = new Tasks();
     }
     
     
