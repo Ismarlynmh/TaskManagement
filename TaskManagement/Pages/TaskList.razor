@@ -2,6 +2,10 @@
 @inject TasksBLL taskBll
 @inject UserManager<IdentityUser> UserManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Routing
+
+
 <h3>Lista de Tareas y Usuarios</h3>
 <a class="btn btn-primary" href="/rtasks">Agregar nuevo</a>
 <a class="btn btn-primary" href="/">Inicio</a>
@@ -34,6 +38,12 @@
                 </td>
                 <td>@task.Priority</td>
                 <td>@task.UserId</td>
+                <td>
+                <td>
+                    <a href="@GenerateUrl("Edit", task.Id)"><i class="fas fa-pencil-alt"></i> Editar</a>
+                    <a href="@GenerateUrl("Delete", task.Id)"><i class="fa fa-trash"></i> Eliminar</a>
+                </td>
+                </td>
             </tr>
         }
     </tbody>
@@ -50,5 +60,10 @@
 
         tasks = new();
         tasks = taskBll.GetTasks(userId);
+    }
+    private string GenerateUrl(string action, int taskId)
+    {
+        var url = NavigationManager.ToAbsoluteUri($"/rtasks/{action}/{taskId}");
+        return url.ToString();
     }
 }
